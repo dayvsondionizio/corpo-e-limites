@@ -28,7 +28,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   SendHorizontal,
-  Wind
+  Wind,
+  MousePointer2
 } from 'lucide-react';
 
 /// --- Types & Constants ---
@@ -137,7 +138,7 @@ const HAIR_COLORS = ["#090806", "#4B352D", "#C4A484", "#A52A2A"];
 const CLOTHING_COLORS = ["#6366F1", "#EC4899", "#10B981", "#F59E0B", "#EF4444"];
 
 // --- Audio Utility ---
-const speak = (text: string, gender: 'boy' | 'girl' | 'neutral' | null) => {
+const speak = (text: string, gender: 'boy' | 'girl' | 'neutral' | null = 'neutral') => {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -501,6 +502,7 @@ export default function App() {
                 className="h-full"
               >
                 {activeTab === 'explorar' && (
+                  <div className="grid lg:grid-cols-2 gap-12 items-center h-full">
                     <div className="space-y-8">
                       <div className="relative group">
                         <div className="absolute -inset-4 bg-indigo-500/10 rounded-[64px] blur-2xl group-hover:bg-indigo-500/20 transition-all" />
@@ -529,7 +531,7 @@ export default function App() {
                           </div>
                         ) : (
                           <div className="space-y-2 text-slate-400">
-                             <Pointer size={32} className="mx-auto mb-2 opacity-20" />
+                             <MousePointer2 size={32} className="mx-auto mb-2 opacity-20" />
                              <p className="font-bold uppercase tracking-widest text-xs">Toque no personagem para explorar</p>
                           </div>
                         )}
@@ -596,7 +598,7 @@ export default function App() {
                              <div className="space-y-4">
                                 <div className="flex items-center gap-3">
                                   <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">{SITUATIONS[currentSituationIdx].title}</h3>
-                                  <button onClick={() => speak(SITUATIONS[currentSituationIdx].description)} className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl hover:scale-110 transition-all">
+                                  <button onClick={() => speak(SITUATIONS[currentSituationIdx].description, gender)} className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl hover:scale-110 transition-all">
                                     <Volume2 size={24} />
                                   </button>
                                 </div>
@@ -640,7 +642,7 @@ export default function App() {
                                {SITUATIONS[currentSituationIdx].questions.map((q, i) => (
                                  <li 
                                   key={i} 
-                                  onClick={() => speak(q)}
+                                  onClick={() => speak(q, gender)}
                                   className="flex gap-4 bg-white p-6 rounded-3xl border border-indigo-100 shadow-sm font-bold text-slate-700 leading-tight cursor-pointer hover:border-indigo-400 transition-all group"
                                  >
                                    <span className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-[10px] font-black text-indigo-600 shrink-0 group-hover:bg-indigo-500 group-hover:text-white">{i+1}</span>
@@ -696,7 +698,7 @@ export default function App() {
                         return (
                           <button 
                             key={h.id}
-                            onClick={() => toggleHelper(h.id, h.label)}
+                            onClick={() => toggleHelper(h.id)}
                             className={`flex flex-col items-center gap-4 p-8 rounded-[40px] border-4 transition-all ${
                               active ? 'bg-indigo-50 border-indigo-500 scale-105 shadow-xl' : 'bg-white border-slate-50 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 shadow-sm'
                             }`}
@@ -793,7 +795,6 @@ export default function App() {
                 { id: 'situacoes', icon: <Search size={18}/> },
                 { id: 'confianca', icon: <Users size={18}/> },
                 { id: 'voz', icon: <Volume2 size={18}/> },
-                { id: 'respirar', icon: <Wind size={18}/> },
                 { id: 'progresso', icon: <Sparkles size={18}/> }
               ].map(item => (
                 <button 
