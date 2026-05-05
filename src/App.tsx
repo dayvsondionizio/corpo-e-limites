@@ -413,7 +413,7 @@ export default function App() {
         </header>
 
         {/* View Surface */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-16 py-4 pb-32">
+        <div className="flex-1 overflow-y-auto px-4 md:px-16 py-4 pb-48 md:pb-32">
           <AnimatePresence mode="wait">
             {!gender ? (
               <motion.div key="intro" className="max-w-2xl mx-auto py-12 space-y-12">
@@ -447,7 +447,9 @@ export default function App() {
               <motion.div key="customize" className="w-full max-w-4xl mx-auto py-4 md:py-8">
                 <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center w-full">
                   <div className="bg-slate-50 p-4 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-100 shadow-inner w-full md:w-1/2 flex justify-center">
-                    <CustomAvatar config={avatar} size="lg" />
+                    <div className="w-40 md:w-full flex justify-center">
+                      <CustomAvatar config={avatar} size="lg" />
+                    </div>
                   </div>
                   
                   <div className="flex-1 space-y-6 md:space-y-8 w-full">
@@ -510,14 +512,16 @@ export default function App() {
                       <div className="relative group w-full flex justify-center">
                         <div className="absolute -inset-4 bg-indigo-500/10 rounded-[64px] blur-2xl group-hover:bg-indigo-500/20 transition-all" />
                         <div className="relative bg-white p-4 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-50 shadow-xl w-full flex justify-center">
-                          <CustomAvatar 
-                            config={avatar} 
-                            size="lg" 
-                            onPartClick={(part) => {
-                              setActivePart(part);
-                              playSfx('click');
-                            }} 
-                          />
+                          <div className="w-40 md:w-full flex justify-center">
+                            <CustomAvatar 
+                              config={avatar} 
+                              size="lg" 
+                              onPartClick={(part) => {
+                                setActivePart(part);
+                                playSfx('click');
+                              }} 
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -836,7 +840,7 @@ export default function App() {
 
         {/* Floating Mobile/Static Nav Overlay */}
         {gender && (
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] md:hidden bg-white/90 backdrop-blur-2xl border border-slate-100 p-2 rounded-[40px] shadow-[0_20px_80px_rgba(0,0,0,0.15)] z-[100] flex gap-1">
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[95%] md:hidden bg-white/90 backdrop-blur-2xl border border-slate-100 p-2 rounded-[30px] shadow-[0_20px_40px_rgba(0,0,0,0.15)] z-[100] flex gap-1">
               {[
                 { id: 'explorar', icon: <Home size={18}/> },
                 { id: 'situacoes', icon: <Search size={18}/> },
