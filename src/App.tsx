@@ -194,10 +194,17 @@ const playSfx = (type: 'success' | 'click' | 'alert') => {
 
 // --- Avatar Component ---
 const CustomAvatar = ({ config, size = "md", onPartClick }: { config: AvatarConfig, size?: 'sm' | 'md' | 'lg', onPartClick?: (part: string) => void }) => {
-  const scale = size === 'sm' ? 0.5 : size === 'lg' ? 1.5 : 1;
-  
   return (
-    <svg width={200 * scale} height={300 * scale} viewBox="0 0 200 300" className="drop-shadow-2xl">
+    <div className="relative inline-block">
+      <svg 
+        viewBox="0 0 200 300" 
+        className="drop-shadow-2xl transition-all"
+        style={{ 
+          width: size === 'sm' ? '100px' : size === 'lg' ? '100%' : '150px',
+          maxWidth: size === 'lg' ? '280px' : 'none',
+          height: 'auto'
+        }}
+      >
       <g className="cursor-pointer">
         <rect x="75" y="220" width="20" height="60" fill={config.skin} onClick={() => onPartClick?.("Pernas")} />
         <rect x="105" y="220" width="20" height="60" fill={config.skin} onClick={() => onPartClick?.("Pernas")} />
@@ -409,7 +416,7 @@ export default function App() {
         </header>
 
         {/* View Surface */}
-        <div className="flex-1 overflow-y-auto px-8 py-4 md:px-16 pb-32">
+        <div className="flex-1 overflow-y-auto px-4 md:px-16 py-4 pb-32">
           <AnimatePresence mode="wait">
             {!gender ? (
               <motion.div key="intro" className="max-w-2xl mx-auto py-12 space-y-12">
@@ -440,9 +447,9 @@ export default function App() {
                 </div>
               </motion.div>
             ) : isCustomizing ? (
-              <motion.div key="customize" className="max-w-4xl mx-auto py-8">
-                <div className="flex flex-col md:flex-row gap-12 items-center">
-                  <div className="bg-slate-50 p-12 rounded-[64px] border-4 border-slate-100 shadow-inner">
+              <motion.div key="customize" className="max-w-4xl mx-auto py-4 md:py-8">
+                <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+                  <div className="bg-slate-50 p-8 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-100 shadow-inner w-full flex justify-center">
                     <CustomAvatar config={avatar} size="lg" />
                   </div>
                   
@@ -501,11 +508,11 @@ export default function App() {
                 className="h-full"
               >
                 {activeTab === 'explorar' && (
-                  <div className="grid lg:grid-cols-2 gap-12 items-center h-full">
-                    <div className="space-y-8">
-                      <div className="relative group">
+                  <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center h-full">
+                    <div className="space-y-6 md:space-y-8">
+                      <div className="relative group w-full flex justify-center">
                         <div className="absolute -inset-4 bg-indigo-500/10 rounded-[64px] blur-2xl group-hover:bg-indigo-500/20 transition-all" />
-                        <div className="relative bg-white p-12 rounded-[64px] border-4 border-slate-50 shadow-xl flex justify-center">
+                        <div className="relative bg-white p-8 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-50 shadow-xl w-full flex justify-center">
                           <CustomAvatar 
                             config={avatar} 
                             size="lg" 
@@ -600,7 +607,7 @@ export default function App() {
                              
                              <div className="space-y-4 pt-10">
                                 <p className="font-black text-xs uppercase tracking-widest text-slate-400">Isso é adequado ou te deixa estranho?</p>
-                                <div className="flex gap-4">
+                                <div className="grid grid-cols-3 gap-2 md:gap-4">
                                   {[
                                     { n: 1, label: 'Legal!', icon: '✅', color: 'emerald' },
                                     { n: 2, label: 'Estranho...', icon: '🤔', color: 'amber' },
@@ -611,12 +618,12 @@ export default function App() {
                                       <button 
                                         key={r.n}
                                         onClick={() => handleReaction(r.n)}
-                                        className={`flex-1 p-6 rounded-[32px] border-4 transition-all flex flex-col items-center gap-2 ${
+                                        className={`flex-1 p-3 md:p-6 rounded-3xl border-4 transition-all flex flex-col items-center gap-2 ${
                                           active ? `bg-${r.color}-50 border-${r.color}-400 text-${r.color}-600 scale-105 shadow-lg` : 'bg-slate-50 border-transparent opacity-60'
                                         }`}
                                       >
-                                        <span className="text-3xl">{r.icon}</span>
-                                        <span className="font-black text-[10px] uppercase">{r.label}</span>
+                                        <span className="text-xl md:text-3xl">{r.icon}</span>
+                                        <span className="font-black text-[8px] md:text-[10px] uppercase">{r.label}</span>
                                       </button>
                                     );
                                   })}
@@ -688,7 +695,7 @@ export default function App() {
                           <button 
                             key={h.id}
                             onClick={() => toggleHelper(h.id)}
-                            className={`flex flex-col items-center gap-4 p-8 rounded-[40px] border-4 transition-all ${
+                            className={`flex flex-col items-center gap-4 p-4 md:p-8 rounded-[30px] md:rounded-[40px] border-4 transition-all ${
                               active ? 'bg-indigo-50 border-indigo-500 scale-105 shadow-xl' : 'bg-white border-slate-50 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 shadow-sm'
                             }`}
                           >
@@ -726,11 +733,11 @@ export default function App() {
                             speak(p, gender);
                             playSfx('click');
                           }}
-                          className="w-full flex items-center justify-between p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-indigo-400 hover:bg-indigo-50 transition-all text-left shadow-md group"
+                          className="w-full flex items-center justify-between p-5 md:p-8 bg-white border-2 border-slate-100 rounded-3xl md:rounded-[35px] hover:border-indigo-400 hover:bg-indigo-50 transition-all text-left shadow-md group"
                         >
-                          <span className="text-2xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600">{p}</span>
-                          <div className="p-4 bg-slate-50 text-slate-300 rounded-2xl group-hover:bg-indigo-500 group-hover:text-white transition-all transform group-hover:rotate-12">
-                            <Volume2 size={30} />
+                          <span className="text-lg md:text-2xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600">{p}</span>
+                          <div className="p-3 md:p-4 bg-slate-50 text-slate-300 rounded-2xl group-hover:bg-indigo-500 group-hover:text-white transition-all transform group-hover:rotate-12">
+                            <Volume2 size={24} className="md:w-[30px] md:h-[30px]" />
                           </div>
                         </motion.button>
                       ))}
