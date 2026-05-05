@@ -234,6 +234,7 @@ const CustomAvatar = ({ config, size = "md", onPartClick }: { config: AvatarConf
         )}
       </g>
     </svg>
+    </div>
   );
 };
 
@@ -267,6 +268,20 @@ const StickerCard = ({ sticker, unlocked }: { sticker: typeof STICKERS[0], unloc
   </motion.div>
 );
 
+const CompleteButton = ({ onClick, unlocked, label }: { onClick: () => void, unlocked: boolean, label: string }) => (
+  <button 
+    onClick={unlocked ? undefined : onClick}
+    className={`w-full py-6 rounded-[35px] font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3 shadow-xl ${
+      unlocked 
+      ? 'bg-emerald-500 text-white shadow-emerald-200 cursor-default' 
+      : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98]'
+    }`}
+  >
+    {unlocked ? <CheckCircle2 size={24} /> : <Sparkles size={24} />}
+    {unlocked ? "Missão Concluída!" : label}
+  </button>
+);
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<Section>('explorar');
   const [isProfessionalMode, setIsProfessionalMode] = useState(false);
@@ -296,24 +311,6 @@ export default function App() {
     return Math.min(score, 100);
   }, [gender, sessionLog, selectedHelpers, voicePower]);
 
-  useEffect(() => {
-    if (progressPercent >= 10 && !unlockedStickers.includes('corpo')) {
-      setUnlockedStickers(prev => [...prev, 'corpo']);
-      playSfx('success');
-    }
-    if (sessionLog.length === SITUATIONS.length && !unlockedStickers.includes('situacoes')) {
-      setUnlockedStickers(prev => [...prev, 'situacoes']);
-      playSfx('success');
-    }
-    if (selectedHelpers.length >= 3 && !unlockedStickers.includes('confianca')) {
-      setUnlockedStickers(prev => [...prev, 'confianca']);
-      playSfx('success');
-    }
-    if (voicePower >= 100 && !unlockedStickers.includes('voz')) {
-      setUnlockedStickers(prev => [...prev, 'voz']);
-      playSfx('success');
-    }
-  }, [progressPercent, sessionLog, selectedHelpers, voicePower]);
 
   const handleReaction = (n: number) => {
     playSfx(n === 3 ? 'alert' : 'click');
@@ -571,6 +568,13 @@ export default function App() {
                           </motion.div>
                         ))}
                       </div>
+                      <div className="pt-8">
+                         <CompleteButton 
+                           label="Concluir Exploração do Castelo"
+                           unlocked={unlockedStickers.includes('corpo')}
+                           onClick={() => { setUnlockedStickers(prev => [...prev, 'corpo']); playSfx('success'); }}
+                         />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -666,6 +670,23 @@ export default function App() {
                             Próximo Desafio <ChevronRight size={20}/>
                           </button>
                        </div>
+
+                       {currentSituationIdx === SITUATIONS.length - 1 && (
+                         <div className="mt-12 pt-10 border-t border-slate-50">
+                            <CompleteButton 
+                              label="Finalizar Todos os Desafios"
+                              unlocked={unlockedStickers.includes('situacoes')}
+                              onClick={() => { 
+                                if (sessionLog.length < SITUATIONS.length) {
+                                  alert("Por favor, responda a todos os desafios antes de concluir!");
+                                } else {
+                                  setUnlockedStickers(prev => [...prev, 'situacoes']); 
+                                  playSfx('success'); 
+                                }
+                              }}
+                            />
+                         </div>
+                       )}
                      </motion.div>
                   </div>
                 )}
@@ -713,6 +734,21 @@ export default function App() {
                          <p className="text-indigo-100 font-medium">Lembre-se: em casos de perigo, conte para qualquer um deles até que alguém escute você de verdade.</p>
                        </div>
                     </div>
+
+                    <div className="max-w-xl mx-auto w-full pt-12">
+                       <CompleteButton 
+                         label="Confirmar Meus Ajudantes"
+                         unlocked={unlockedStickers.includes('confianca')}
+                         onClick={() => { 
+                           if (selectedHelpers.length < 3) {
+                             alert("Escolha pelo menos 3 heróis para sua equipe de resgate!");
+                           } else {
+                             setUnlockedStickers(prev => [...prev, 'confianca']); 
+                             playSfx('success'); 
+                           }
+                         }}
+                       />
+                    </div>
                   </div>
                 )}
 
@@ -751,6 +787,21 @@ export default function App() {
                        <div className="w-full h-10 bg-slate-100 rounded-full border-4 border-white shadow-inner p-1 overflow-hidden">
                           <motion.div animate={{ width: `${voicePower}%` }} className="h-full bg-indigo-500 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.5)]" />
                        </div>
+                    </div>
+
+                    <div className="pt-12 max-w-xl mx-auto w-full">
+                       <CompleteButton 
+                         label="Liberar Escudo de Voz"
+                         unlocked={unlockedStickers.includes('voz')}
+                         onClick={() => { 
+                           if (voicePower < 100) {
+                             alert("Pratique mais as frases para carregar seu escudo!");
+                           } else {
+                             setUnlockedStickers(prev => [...prev, 'voz']); 
+                             playSfx('success'); 
+                           }
+                         }}
+                       />
                     </div>
                   </div>
                 )}
