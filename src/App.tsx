@@ -428,7 +428,6 @@ export default function App() {
                         setGender(t.id as any); 
                         setIsCustomizing(true);
                         playSfx('success'); 
-                        speak(t.id === 'boy' ? "Olá herói! Vamos montar seu uniforme!" : "Olá heroína! Vamos montar seu uniforme!", t.id as any); 
                       }} 
                       className="group flex flex-col items-center gap-4"
                     >
@@ -513,11 +512,6 @@ export default function App() {
                             onPartClick={(part) => {
                               setActivePart(part);
                               playSfx('click');
-                              if (part === "Zona Íntima") {
-                                speak("Essa é uma zona muito importante. Ninguém pode tocar aqui sem permissão, nem tirar fotos. É sua zona secreta de proteção!", gender);
-                              } else {
-                                speak(`Isso é o seu ${part.toLowerCase()}. Você cuida dele e decide quem pode dar um carinho ou um abraço.`, gender);
-                              }
                             }} 
                           />
                         </div>
@@ -556,7 +550,7 @@ export default function App() {
                           <motion.div 
                             key={z.id} 
                             whileHover={{ x: 10 }} 
-                            onClick={() => { playSfx('click'); speak(z.title + ". " + z.desc, gender); }}
+                            onClick={() => { playSfx('click'); }}
                             className="p-6 bg-slate-50 rounded-[32px] border-2 border-transparent hover:border-indigo-100 hover:bg-white flex items-center gap-6 cursor-pointer group"
                           >
                             <span className="text-5xl group-hover:scale-110 transition-all">{z.icon}</span>
@@ -598,9 +592,6 @@ export default function App() {
                              <div className="space-y-4">
                                 <div className="flex items-center gap-3">
                                   <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">{SITUATIONS[currentSituationIdx].title}</h3>
-                                  <button onClick={() => speak(SITUATIONS[currentSituationIdx].description, gender)} className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl hover:scale-110 transition-all">
-                                    <Volume2 size={24} />
-                                  </button>
                                 </div>
                                 <p className="text-2xl text-slate-500 font-medium leading-relaxed italic border-l-8 border-indigo-100 pl-8">
                                   "{SITUATIONS[currentSituationIdx].description}"
@@ -642,12 +633,10 @@ export default function App() {
                                {SITUATIONS[currentSituationIdx].questions.map((q, i) => (
                                  <li 
                                   key={i} 
-                                  onClick={() => speak(q, gender)}
-                                  className="flex gap-4 bg-white p-6 rounded-3xl border border-indigo-100 shadow-sm font-bold text-slate-700 leading-tight cursor-pointer hover:border-indigo-400 transition-all group"
+                                  className="flex gap-4 bg-white p-6 rounded-3xl border border-indigo-100 shadow-sm font-bold text-slate-700 leading-tight transition-all group"
                                  >
                                    <span className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-[10px] font-black text-indigo-600 shrink-0 group-hover:bg-indigo-500 group-hover:text-white">{i+1}</span>
                                    <span className="flex-1">{q}</span>
-                                   <Volume2 size={14} className="text-slate-200 group-hover:text-indigo-400" />
                                  </li>
                                ))}
                              </ul>
