@@ -31,17 +31,24 @@ import {
   Wind
 } from 'lucide-react';
 
-// --- Types & Constants ---
+/// --- Types & Constants ---
 
-type Section = 'explorar' | 'situacoes' | 'confianca' | 'voz' | 'progresso' | 'respirar';
+type Section = 'explorar' | 'situacoes' | 'confianca' | 'voz' | 'progresso';
 type Category = 'familia' | 'escola' | 'digital' | 'rua' | 'segredo';
+
+interface AvatarConfig {
+  skin: string;
+  hairStyle: 'short' | 'long' | 'curly' | 'bald';
+  hairColor: string;
+  clothingColor: string;
+}
 
 interface Situation {
   id: number;
   category: Category;
   title: string;
   description: string;
-  icon: string; // Emoji-based for diversity
+  icon: string;
   questions: string[];
   severity: 'baixa' | 'media' | 'alta';
   advice: string;
@@ -64,7 +71,7 @@ const SITUATIONS: Situation[] = [
     title: "Beijo na Bochecha",
     description: "Um adulto que você mal conhece quer te dar um beijo no rosto e você não se sente bem.",
     icon: "🏠",
-    questions: ["Você é obrigado a dar beijo?", "Que tal um tchau com a mão?", "Como dizer 'não' educadamente?"],
+    questions: ["Você é obrigado a dar beijo?", "Que tal um tchau com a mão?", "Como dizer 'no' educadamente?"],
     severity: 'media',
     advice: "Reforce que afeto forçado não é obrigatório, mesmo com conhecidos."
   },
@@ -125,14 +132,28 @@ const PHRASES = [
   "Não sou obrigado a aceitar carinhos."
 ];
 
+const SKIN_COLORS = ["#FFDBAC", "#F1C27D", "#E0AC69", "#8D5524"];
+const HAIR_COLORS = ["#090806", "#4B352D", "#C4A484", "#A52A2A"];
+const CLOTHING_COLORS = ["#6366F1", "#EC4899", "#10B981", "#F59E0B", "#EF4444"];
+
 // --- Audio Utility ---
-const speak = (text: string) => {
+const speak = (text: string, gender: 'boy' | 'girl' | 'neutral' | null) => {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'pt-BR';
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1;
+    utterance.rate = 0.95;
+    utterance.pitch = gender === 'girl' ? 1.2 : 1.0;
+    
+    const voices = window.speechSynthesis.getVoices();
+    const targetVoice = voices.find(v => {
+      const name = v.name.toLowerCase();
+      if (gender === 'girl') return name.includes('maria') || name.includes('female') || name.includes('luciana');
+      if (gender === 'boy') return name.includes('daniel') || name.includes('male') || name.includes('helio');
+      return v.lang === 'pt-BR';
+    });
+    
+    if (targetVoice) utterance.voice = targetVoice;
     window.speechSynthesis.speak(utterance);
   }
 };
@@ -170,6 +191,44 @@ const playSfx = (type: 'success' | 'click' | 'alert') => {
   }
 };
 
+// --- Avatar Component ---
+const CustomAvatar = ({ config, size = "md", onPartClick }: { config: AvatarConfig, size?: 'sm' | 'md' | 'lg', onPartClick?: (part: string) => void }) => {
+  const scale = size === 'sm' ? 0.5 : size === 'lg' ? 1.5 : 1;
+  
+  return (
+    <svg width={200 * scale} height={300 * scale} viewBox="0 0 200 300" className="drop-shadow-2xl">
+      <g className="cursor-pointer">
+        <rect x="75" y="220" width="20" height="60" fill={config.skin} onClick={() => onPartClick?.("Pernas")} />
+        <rect x="105" y="220" width="20" height="60" fill={config.skin} onClick={() => onPartClick?.("Pernas")} />
+        <path d="M60 140 Q100 130 140 140 L135 230 L65 230 Z" fill={config.clothingColor} onClick={() => onPartClick?.("Tronco")} />
+        <circle cx="100" cy="225" r="15" fill="transparent" onClick={() => onPartClick?.("Zona Íntima")} />
+        <rect x="45" y="145" width="15" height="70" fill={config.skin} transform="rotate(10 45 145)" onClick={() => onPartClick?.("Braços")} />
+        <rect x="140" y="145" width="15" height="70" fill={config.skin} transform="rotate(-10 155 145)" onClick={() => onPartClick?.("Braços")} />
+        <rect x="90" y="125" width="20" height="15" fill={config.skin} />
+        <circle cx="100" cy="100" r="40" fill={config.skin} onClick={() => onPartClick?.("Cabeça")} />
+        <circle cx="85" cy="95" r="3" fill="#333" />
+        <circle cx="115" cy="95" r="3" fill="#333" />
+        <path d="M90 115 Q100 125 110 115" fill="none" stroke="#333" strokeWidth="2" />
+        {config.hairStyle === 'short' && (
+          <path d="M60 90 Q60 50 100 50 Q140 50 140 90 L135 100 Q100 90 65 100 Z" fill={config.hairColor} />
+        )}
+        {config.hairStyle === 'long' && (
+          <path d="M60 90 Q60 40 100 40 Q140 40 140 90 L150 180 Q100 170 50 180 Z" fill={config.hairColor} />
+        )}
+        {config.hairStyle === 'curly' && (
+          <g fill={config.hairColor}>
+             <circle cx="70" cy="70" r="15" />
+             <circle cx="100" cy="55" r="18" />
+             <circle cx="130" cy="70" r="15" />
+             <circle cx="65" cy="100" r="12" />
+             <circle cx="135" cy="100" r="12" />
+          </g>
+        )}
+      </g>
+    </svg>
+  );
+};
+
 // --- Components ---
 
 const ProgressBar = ({ current, total }: { current: number, total: number }) => (
@@ -200,70 +259,24 @@ const StickerCard = ({ sticker, unlocked }: { sticker: typeof STICKERS[0], unloc
   </motion.div>
 );
 
-const BreathingExercise = () => {
-  const [phase, setPhase] = useState<'in' | 'hold' | 'out'>('in');
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setPhase(prev => {
-        if (prev === 'in') return 'hold';
-        if (prev === 'hold') return 'out';
-        return 'in';
-      });
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (phase === 'in') speak("Cheire a florzinha...");
-    if (phase === 'out') speak("Assopre a velinha...");
-  }, [phase]);
-
-  return (
-    <div className="flex flex-col items-center gap-12 py-10">
-      <div className="relative flex items-center justify-center">
-        <motion.div
-          animate={{
-            scale: phase === 'in' ? 1.5 : phase === 'hold' ? 1.5 : 0.8,
-            backgroundColor: phase === 'in' ? '#10b981' : phase === 'hold' ? '#f59e0b' : '#3b82f6'
-          }}
-          transition={{ duration: 4, ease: "easeInOut" }}
-          className="w-48 h-48 rounded-full shadow-2xl flex items-center justify-center text-white"
-        >
-          <Sparkles size={48} className="animate-pulse" />
-        </motion.div>
-        
-        <div className="absolute -inset-8 border-4 border-dashed border-slate-200 rounded-full animate-[spin_20s_linear_infinite]" />
-      </div>
-
-      <div className="text-center space-y-4">
-        <motion.h4 
-          key={phase}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-black text-slate-800 italic"
-        >
-          {phase === 'in' && "Cheire a florzinha... (Inspire)"}
-          {phase === 'hold' && "Segure um pouquinho..."}
-          {phase === 'out' && "Assopre a velinha... (Expire)"}
-        </motion.h4>
-        <p className="text-slate-400 font-medium max-w-md">
-          A respiração ajuda seu corpo a ficar calmo e pronto para as missões!
-        </p>
-      </div>
-    </div>
-  );
-};
-
 export default function App() {
   const [activeTab, setActiveTab] = useState<Section>('explorar');
   const [isProfessionalMode, setIsProfessionalMode] = useState(false);
   const [gender, setGender] = useState<'boy' | 'girl' | 'neutral' | null>(null);
+  const [isCustomizing, setIsCustomizing] = useState(false);
+  const [avatar, setAvatar] = useState<AvatarConfig>({
+    skin: SKIN_COLORS[0],
+    hairStyle: 'short',
+    hairColor: HAIR_COLORS[0],
+    clothingColor: CLOTHING_COLORS[0]
+  });
+
   const [currentSituationIdx, setCurrentSituationIdx] = useState(0);
   const [sessionLog, setSessionLog] = useState<{scenario: string, reaction: number}[]>([]);
   const [unlockedStickers, setUnlockedStickers] = useState<string[]>([]);
   const [selectedHelpers, setSelectedHelpers] = useState<string[]>([]);
   const [voicePower, setVoicePower] = useState(0);
+  const [activePart, setActivePart] = useState<string | null>(null);
 
   // Computed Progress
   const progressPercent = useMemo(() => {
@@ -304,16 +317,24 @@ export default function App() {
     } else {
       setSessionLog([...sessionLog, { scenario: SITUATIONS[currentSituationIdx].title, reaction: n }]);
     }
-    
-    if (n === 1) speak("Iso é legal!");
-    if (n === 2) speak("Isso parece estranho.");
-    if (n === 3) speak("Isso é mal! Proteja seu corpo.");
   };
 
-  const toggleHelper = (id: string, label: string) => {
+  const toggleHelper = (id: string) => {
     playSfx('click');
-    if (!selectedHelpers.includes(id)) speak(label);
     setSelectedHelpers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleReset = () => {
+    if (window.confirm("Deseja reiniciar a missão do zero?")) {
+      setGender(null);
+      setIsCustomizing(false);
+      setActiveTab('explorar');
+      setSessionLog([]);
+      setUnlockedStickers([]);
+      setSelectedHelpers([]);
+      setVoicePower(0);
+      playSfx('click');
+    }
   };
 
   return (
@@ -329,7 +350,6 @@ export default function App() {
            { id: 'situacoes', icon: <Search size={22}/>, label: 'Treino' },
            { id: 'confianca', icon: <Users size={22}/>, label: 'Equipe' },
            { id: 'voz', icon: <Volume2 size={22}/>, label: 'Voz' },
-           { id: 'respirar', icon: <Wind size={22}/>, label: 'Respirar' },
            { id: 'progresso', icon: <Sparkles size={22}/>, label: 'Selo' }
          ].map(item => (
            <button 
@@ -343,7 +363,14 @@ export default function App() {
              <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>
            </button>
          ))}
-         <div className="mt-auto">
+         <div className="mt-auto flex flex-col gap-4">
+            <button 
+              onClick={handleReset}
+              title="Reiniciar Missão"
+              className="p-3 bg-rose-50 text-rose-500 rounded-2xl hover:bg-rose-100 transition-all"
+            >
+              <RotateCcw size={22} />
+            </button>
             <button 
               onClick={() => { setIsProfessionalMode(!isProfessionalMode); playSfx('click'); }}
               className={`p-3 rounded-2xl transition-all ${isProfessionalMode ? 'bg-amber-100 text-amber-600' : 'bg-slate-50 text-slate-300'}`}
@@ -364,7 +391,6 @@ export default function App() {
                 {activeTab === 'situacoes' && "Desafios de Segurança"}
                 {activeTab === 'confianca' && "Minha Rede de Apoio"}
                 {activeTab === 'voz' && "Laboratório de Voz"}
-                {activeTab === 'respirar' && "Calma de Herói"}
                 {activeTab === 'progresso' && "Minha Coleção de Selos"}
               </h2>
               <div className="flex items-center gap-3 mt-2">
@@ -388,17 +414,82 @@ export default function App() {
               <motion.div key="intro" className="max-w-2xl mx-auto py-12 space-y-12">
                 <div className="text-center space-y-4">
                   <h3 className="text-4xl font-black italic text-indigo-900 tracking-tight leading-tight">Olá, Pequeno Herói!</h3>
-                  <p className="text-lg text-slate-500 font-medium">Estamos em uma missão para entender como proteger seu corpo. Escolha seu herói:</p>
+                  <p className="text-lg text-slate-500 font-medium">Escolha seu personagem para começar a missão:</p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-8">
-                  {['boy', 'girl', 'neutral'].map(t => (
-                    <button key={t} onClick={() => { setGender(t as any); playSfx('success'); speak("Olá herói! Vamos começar!"); }} className="group flex flex-col items-center gap-4">
-                      <div className="w-40 h-40 bg-slate-50 rounded-[50px] flex items-center justify-center text-7xl group-hover:scale-110 group-hover:rotate-3 group-hover:bg-indigo-50 group-hover:shadow-xl transition-all border-4 border-transparent hover:border-indigo-200">
-                         {t === 'boy' ? '👦' : t === 'girl' ? '👧' : '🧒'}
+                  {[
+                    { id: 'boy', icon: '👦', label: 'Herói' },
+                    { id: 'girl', icon: '👧', label: 'Heroína' }
+                  ].map(t => (
+                    <button 
+                      key={t.id} 
+                      onClick={() => { 
+                        setGender(t.id as any); 
+                        setIsCustomizing(true);
+                        playSfx('success'); 
+                        speak(t.id === 'boy' ? "Olá herói! Vamos montar seu uniforme!" : "Olá heroína! Vamos montar seu uniforme!", t.id as any); 
+                      }} 
+                      className="group flex flex-col items-center gap-4"
+                    >
+                      <div className="w-40 h-40 bg-white rounded-[50px] flex items-center justify-center text-7xl group-hover:scale-110 group-hover:rotate-3 group-hover:bg-indigo-50 group-hover:shadow-xl transition-all border-4 border-slate-100 hover:border-indigo-200">
+                         {t.icon}
                       </div>
-                      <span className="font-black uppercase tracking-widest text-xs text-slate-400 group-hover:text-indigo-600">Herói {t === 'boy' ? 'A' : t === 'girl' ? 'B' : 'C'}</span>
+                      <span className="font-black uppercase tracking-widest text-xs text-slate-400 group-hover:text-indigo-600">{t.label}</span>
                     </button>
                   ))}
+                </div>
+              </motion.div>
+            ) : isCustomizing ? (
+              <motion.div key="customize" className="max-w-4xl mx-auto py-8">
+                <div className="flex flex-col md:flex-row gap-12 items-center">
+                  <div className="bg-slate-50 p-12 rounded-[64px] border-4 border-slate-100 shadow-inner">
+                    <CustomAvatar config={avatar} size="lg" />
+                  </div>
+                  
+                  <div className="flex-1 space-y-8">
+                    <h3 className="text-3xl font-black text-slate-800">Monte seu Herói</h3>
+                    
+                    <div className="space-y-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">Tom de Pele</p>
+                      <div className="flex gap-3">
+                        {SKIN_COLORS.map(c => (
+                          <button key={c} onClick={() => setAvatar({...avatar, skin: c})} className={`w-10 h-10 rounded-full border-4 ${avatar.skin === c ? 'border-indigo-600' : 'border-white'}`} style={{backgroundColor: c}} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">Cabelo</p>
+                      <div className="flex flex-wrap gap-3">
+                        {['short', 'long', 'curly', 'bald'].map(s => (
+                          <button key={s} onClick={() => setAvatar({...avatar, hairStyle: s as any})} className={`px-4 py-2 rounded-xl border-2 font-bold text-xs ${avatar.hairStyle === s ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-100'}`}>
+                            {s === 'short' ? 'Curto' : s === 'long' ? 'Longo' : s === 'curly' ? 'Cacheado' : 'Sem Cabelo'}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex gap-3 mt-2">
+                        {HAIR_COLORS.map(c => (
+                          <button key={c} onClick={() => setAvatar({...avatar, hairColor: c})} className={`w-8 h-8 rounded-full border-4 ${avatar.hairColor === c ? 'border-indigo-600' : 'border-white'}`} style={{backgroundColor: c}} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400">Cor da Roupa</p>
+                      <div className="flex gap-3">
+                        {CLOTHING_COLORS.map(c => (
+                          <button key={c} onClick={() => setAvatar({...avatar, clothingColor: c})} className={`w-10 h-10 rounded-full border-4 ${avatar.clothingColor === c ? 'border-indigo-600' : 'border-white'}`} style={{backgroundColor: c}} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={() => { setIsCustomizing(false); playSfx('success'); speak("Uniforme pronto! Missão iniciada!", gender); }}
+                      className="w-full py-5 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200"
+                    >
+                      Começar Missão!
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ) : (
@@ -410,19 +501,47 @@ export default function App() {
                 className="h-full"
               >
                 {activeTab === 'explorar' && (
-                  <div className="grid lg:grid-cols-2 gap-12 items-center h-full">
                     <div className="space-y-8">
-                      <div 
-                        onClick={() => speak("Seu corpo é como um castelo precioso. Você é o rei ou rainha e decide quem pode entrar em cada sala.")}
-                        className="p-8 bg-indigo-600 rounded-[50px] text-white space-y-4 shadow-2xl shadow-indigo-200 relative overflow-hidden cursor-pointer group"
-                      >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl" />
-                        <div className="flex items-center gap-3">
-                          <h4 className="text-3xl font-black tracking-tight">O Castelo do Seu Corpo</h4>
-                          <Volume2 size={20} className="group-hover:scale-125 transition-all" />
+                      <div className="relative group">
+                        <div className="absolute -inset-4 bg-indigo-500/10 rounded-[64px] blur-2xl group-hover:bg-indigo-500/20 transition-all" />
+                        <div className="relative bg-white p-12 rounded-[64px] border-4 border-slate-50 shadow-xl flex justify-center">
+                          <CustomAvatar 
+                            config={avatar} 
+                            size="lg" 
+                            onPartClick={(part) => {
+                              setActivePart(part);
+                              playSfx('click');
+                              if (part === "Zona Íntima") {
+                                speak("Essa é uma zona muito importante. Ninguém pode tocar aqui sem permissão, nem tirar fotos. É sua zona secreta de proteção!", gender);
+                              } else {
+                                speak(`Isso é o seu ${part.toLowerCase()}. Você cuida dele e decide quem pode dar um carinho ou um abraço.`, gender);
+                              }
+                            }} 
+                          />
                         </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-8 rounded-[40px] border-2 border-slate-100 min-h-[140px] flex items-center justify-center text-center">
+                        {activePart ? (
+                          <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4">
+                            <h4 className="text-2xl font-black text-indigo-600">{activePart}</h4>
+                            <p className="text-slate-500 font-medium">Clique em outra parte para aprender mais!</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 text-slate-400">
+                             <Pointer size={32} className="mx-auto mb-2 opacity-20" />
+                             <p className="font-bold uppercase tracking-widest text-xs">Toque no personagem para explorar</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-8">
+                       <div className="p-8 bg-indigo-600 rounded-[50px] text-white space-y-4 shadow-2xl shadow-indigo-200 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl" />
+                        <h4 className="text-3xl font-black tracking-tight">O Castelo do Seu Corpo</h4>
                         <p className="text-indigo-100 font-medium leading-relaxed">
-                          Seu corpo é como um castelo precioso. Você é o rei ou rainha e decide quem pode entrar em cada sala.
+                          Seu corpo é um castelo precioso. Você é quem decide quem pode entrar nas salas! As partes sob a roupa de banho são as salas secretas que só você cuida.
                         </p>
                       </div>
 
@@ -435,7 +554,7 @@ export default function App() {
                           <motion.div 
                             key={z.id} 
                             whileHover={{ x: 10 }} 
-                            onClick={() => { playSfx('click'); speak(z.title + ". " + z.desc); }}
+                            onClick={() => { playSfx('click'); speak(z.title + ". " + z.desc, gender); }}
                             className="p-6 bg-slate-50 rounded-[32px] border-2 border-transparent hover:border-indigo-100 hover:bg-white flex items-center gap-6 cursor-pointer group"
                           >
                             <span className="text-5xl group-hover:scale-110 transition-all">{z.icon}</span>
@@ -450,51 +569,9 @@ export default function App() {
                         ))}
                       </div>
                     </div>
-
-                    <div className="flex justify-center">
-                       <div className="relative w-80 h-[500px] bg-slate-100 rounded-[100px] border-[12px] border-white shadow-2xl overflow-hidden group">
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-12">
-                             <motion.div 
-                              animate={{ y: [0, -10, 0] }}
-                              transition={{ duration: 4, repeat: Infinity }}
-                              className="text-[12rem]"
-                             >
-                              {gender === 'boy' ? '👦' : gender === 'girl' ? '👧' : '🧒'}
-                             </motion.div>
-                             <div className="absolute bottom-10 space-y-4 w-full px-10">
-                                <motion.div 
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={() => speak("O rosto e as mãos são públicos. Podemos dar tchau e apertar as mãos.")}
-                                  className="h-6 bg-emerald-400/30 rounded-full border-2 border-emerald-500/50 backdrop-blur-md flex items-center justify-center text-[10px] font-black text-emerald-800 cursor-pointer hover:bg-emerald-400/50"
-                                >
-                                  PÚBLICO
-                                </motion.div>
-                                <motion.div 
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={() => speak("Abraços e beijos no rosto só com quem você autoriza.")}
-                                  className="h-20 bg-amber-400/30 rounded-full border-2 border-amber-500/50 backdrop-blur-md flex items-center justify-center text-[10px] font-black text-amber-800 text-center px-4 cursor-pointer hover:bg-amber-400/50"
-                                >
-                                  PESSOAL (AUTORIZADO)
-                                </motion.div>
-                                <motion.div 
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={() => speak("As partes que ficam sob a roupa são íntimas. Ninguém pode tocar nelas.")}
-                                  className="h-14 bg-rose-500/40 rounded-full border-2 border-rose-600/50 backdrop-blur-md flex items-center justify-center text-[10px] font-black text-white cursor-pointer hover:bg-rose-500/60"
-                                >
-                                  ÍNTIMO (PRIVADO)
-                                </motion.div>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
                   </div>
                 )}
 
-                {activeTab === 'respirar' && (
-                  <div className="h-full flex flex-col items-center justify-center">
-                    <BreathingExercise />
-                  </div>
-                )}
 
                 {activeTab === 'situacoes' && (
                   <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -653,10 +730,9 @@ export default function App() {
                         <motion.button 
                           key={i}
                           whileHover={{ x: 20 }}
-                          whileTap={{ scale: 0.95 }}
                           onClick={() => { 
                             setVoicePower(prev => Math.min(prev + 20, 100));
-                            speak(p);
+                            speak(p, gender);
                             playSfx('click');
                           }}
                           className="w-full flex items-center justify-between p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-indigo-400 hover:bg-indigo-50 transition-all text-left shadow-md group"
@@ -762,64 +838,63 @@ export default function App() {
                    <div className="bg-slate-900 rounded-[30px] p-6 border border-slate-800 flex items-start gap-4">
                       <div className="p-2 rounded-full bg-indigo-500/10 text-indigo-400"><Info size={16}/></div>
                       <p className="text-sm font-medium leading-relaxed italic text-slate-400">
-                        {activeTab === 'explorar' && "Observe se a criança demonstra dificuldades em reconhecer a zona pessoal vs íntima."}
-                        {activeTab === 'situacoes' && `Situação atual: ${SITUATIONS[currentSituationIdx].advice}`}
-                        {activeTab === 'confianca' && "Incentive a criança a escolher ajudantes da casa e de fora da casa (escola/terapia)."}
-                        {activeTab === 'voz' && "Avalie a projeção e segurança da fala. O treino de repetição ajuda na quebra do congelamento."}
-                        {activeTab === 'respirar' && "Use este módulo se a criança estiver agitada ou apresentar gatilhos emocionais."}
-                        {activeTab === 'progresso' && "Valide os selos como 'conquistas de segurança'."}
-                      </p>
-                   </div>
-                </section>
-
-                <section className="space-y-4">
-                   <div className="flex items-center justify-between">
-                      <h5 className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em]">Diretrizes Terapêuticas</h5>
-                      <Sparkles size={14} className="text-indigo-400" />
-                   </div>
-                   <div className="bg-emerald-900/10 border border-emerald-900/20 rounded-[30px] p-6">
-                       <p className="text-xs text-slate-400 leading-relaxed">
-                         {activeTab === 'situacoes' ? SITUATIONS[currentSituationIdx].advice : "Utilize o app como mediador lúdico para que a criança externalize sentimentos sobre limites corporais."}
+                         {activeTab === 'explorar' && "Observe se a criança demonstra dificuldades em reconhecer a zona pessoal vs íntima."}
+                         {activeTab === 'situacoes' && `Situação atual: ${SITUATIONS[currentSituationIdx].advice}`}
+                         {activeTab === 'confianca' && "Incentive a criança a escolher ajudantes da casa e de fora da casa (escola/terapia)."}
+                         {activeTab === 'voz' && "Avalie a projeção e segurança da fala. O treino de repetição ajuda na quebra do congelamento."}
+                         {activeTab === 'progresso' && "Valide os selos como 'conquistas de segurança'."}
                        </p>
-                   </div>
-                </section>
+                    </div>
+                 </section>
 
-                <section className="space-y-4">
-                   <h5 className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em]">Anotações Clínicas</h5>
-                   <textarea className="w-full h-32 bg-slate-900 border border-slate-800 rounded-[25px] p-4 text-xs focus:ring-1 ring-emerald-500 outline-none text-slate-300 placeholder:text-slate-700" placeholder="Registrar observações comportamentais..." />
-                </section>
+                 <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                       <h5 className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em]">Diretrizes Terapêuticas</h5>
+                       <Sparkles size={14} className="text-indigo-400" />
+                    </div>
+                    <div className="bg-emerald-900/10 border border-emerald-900/20 rounded-[30px] p-6">
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                          {activeTab === 'situacoes' ? SITUATIONS[currentSituationIdx].advice : "Utilize o app como mediador lúdico para que a criança externalize sentimentos sobre limites corporais."}
+                        </p>
+                    </div>
+                 </section>
 
-                <section className="space-y-4 pt-4">
-                   <h5 className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em]">Sessão Report (Sumário)</h5>
-                   <div className="grid gap-2">
-                      <div className="bg-slate-900/50 p-4 rounded-2xl flex justify-between text-[11px] font-bold">
-                         <span className="text-slate-500">Situações Respondidas</span>
-                         <span className="text-indigo-400">{sessionLog.length} / {SITUATIONS.length}</span>
-                      </div>
-                      <div className="bg-slate-900/50 p-4 rounded-2xl flex justify-between text-[11px] font-bold">
-                         <span className="text-slate-500">Poder de Voz</span>
-                         <span className="text-indigo-400">{voicePower}%</span>
-                      </div>
-                      <div className="bg-slate-900/50 p-4 rounded-2xl flex justify-between text-[11px] font-bold">
-                         <span className="text-slate-500">Ajudantes Selecionados</span>
-                         <span className="text-indigo-400">{selectedHelpers.length}</span>
-                      </div>
-                   </div>
-                   <button 
-                    onClick={() => {
-                        const report = `RELATÓRIO DE SESSÃO\n\nPersonagem: ${gender}\nSituações Resolvidas: ${sessionLog.length}\nRespostas: ${JSON.stringify(sessionLog)}\nHeróis de Confiança: ${selectedHelpers.join(', ')}\nProgresso: ${progressPercent.toFixed(0)}%`;
-                        const blob = new Blob([report], {type: 'text/plain'});
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'relatorio-sessao.txt';
-                        a.click();
-                    }}
-                    className="w-full py-4 border border-slate-800 rounded-[25px] font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-800"
-                   >
-                     Exportar Evolução (TXT)
-                   </button>
-                </section>
+                 <section className="space-y-4">
+                    <h5 className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em]">Anotações Clínicas</h5>
+                    <textarea className="w-full h-32 bg-slate-900 border border-slate-800 rounded-[25px] p-4 text-xs focus:ring-1 ring-emerald-500 outline-none text-slate-300 placeholder:text-slate-700" placeholder="Registrar observações comportamentais..." />
+                 </section>
+
+                 <section className="space-y-4 pt-4">
+                    <h5 className="text-[10px] uppercase font-black text-slate-600 tracking-[0.2em]">Sessão Report (Sumário)</h5>
+                    <div className="grid gap-2">
+                       <div className="bg-slate-900/50 p-4 rounded-2xl flex justify-between text-[11px] font-bold">
+                          <span className="text-slate-500">Situações Respondidas</span>
+                          <span className="text-indigo-400">{sessionLog.length} / {SITUATIONS.length}</span>
+                       </div>
+                       <div className="bg-slate-900/50 p-4 rounded-2xl flex justify-between text-[11px] font-bold">
+                          <span className="text-slate-500">Poder de Voz</span>
+                          <span className="text-indigo-400">{voicePower}%</span>
+                       </div>
+                       <div className="bg-slate-900/50 p-4 rounded-2xl flex justify-between text-[11px] font-bold">
+                          <span className="text-slate-500">Ajudantes Selecionados</span>
+                          <span className="text-indigo-400">{selectedHelpers.length}</span>
+                       </div>
+                    </div>
+                    <button 
+                     onClick={() => {
+                         const report = `RELATÓRIO DE SESSÃO - CORPO E LIMITES\n\nGênero: ${gender}\nCustomização: ${JSON.stringify(avatar)}\nSituações Resolvidas: ${sessionLog.length}\nRespostas detalhadas: ${JSON.stringify(sessionLog)}\nHeróis de Confiança: ${selectedHelpers.join(', ')}\nProgresso Total: ${progressPercent.toFixed(0)}%`;
+                         const blob = new Blob([report], {type: 'text/plain'});
+                         const url = URL.createObjectURL(blob);
+                         const a = document.createElement('a');
+                         a.href = url;
+                         a.download = `relatorio-${new Date().toISOString().split('T')[0]}.txt`;
+                         a.click();
+                     }}
+                     className="w-full py-4 border border-slate-800 rounded-[25px] font-black text-[10px] uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-800"
+                    >
+                      Exportar Evolução (TXT)
+                    </button>
+                 </section>
              </div>
           </motion.aside>
         )}
