@@ -343,7 +343,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-slate-900 font-sans flex flex-col md:flex-row h-screen overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#F8F9FA] text-slate-900 font-sans flex flex-col md:flex-row md:h-screen md:overflow-hidden">
       
       {/* Side Navigation for Tablet/Desktop */}
       <aside className="w-24 bg-white border-r border-slate-100 flex flex-col items-center py-10 gap-8 hidden md:flex">
@@ -413,7 +413,7 @@ export default function App() {
         </header>
 
         {/* View Surface */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-16 py-4 pb-48 md:pb-32">
+        <div className="flex-1 md:overflow-y-auto px-4 md:px-16 py-4 pb-48 md:pb-32">
           <AnimatePresence mode="wait">
             {!gender ? (
               <motion.div key="intro" className="max-w-2xl mx-auto py-12 space-y-12">
