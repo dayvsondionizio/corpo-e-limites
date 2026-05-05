@@ -389,7 +389,7 @@ export default function App() {
       <main className={`flex-1 flex flex-col transition-all duration-700 bg-white shadow-inner ${isProfessionalMode ? 'md:mr-[400px]' : ''}`}>
         
         {/* App Bar */}
-        <header className="px-8 py-6 flex items-center justify-between">
+        <header className="px-6 md:px-8 py-6 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-0 justify-between">
            <div className="flex flex-col">
               <h2 className="font-black text-2xl tracking-tight text-slate-900">
                 {activeTab === 'explorar' && "Meu Castelo de Proteção"}
@@ -406,7 +406,7 @@ export default function App() {
               </div>
            </div>
 
-           <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold">
+           <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-[10px] md:text-xs font-bold self-start md:self-auto">
               <Sparkles size={14} />
               {unlockedStickers.length} Selos Ganhos
            </div>
@@ -421,7 +421,7 @@ export default function App() {
                   <h3 className="text-4xl font-black italic text-indigo-900 tracking-tight leading-tight">Olá, Pequeno Herói!</h3>
                   <p className="text-lg text-slate-500 font-medium">Escolha seu personagem para começar a missão:</p>
                 </div>
-                <div className="flex flex-wrap justify-center gap-8">
+                <div className="flex flex-wrap justify-center gap-4 md:gap-8">
                   {[
                     { id: 'boy', icon: '👦', label: 'Herói' },
                     { id: 'girl', icon: '👧', label: 'Heroína' }
@@ -435,7 +435,7 @@ export default function App() {
                       }} 
                       className="group flex flex-col items-center gap-4"
                     >
-                      <div className="w-40 h-40 bg-white rounded-[50px] flex items-center justify-center text-7xl group-hover:scale-110 group-hover:rotate-3 group-hover:bg-indigo-50 group-hover:shadow-xl transition-all border-4 border-slate-100 hover:border-indigo-200">
+                      <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-[40px] md:rounded-[50px] flex items-center justify-center text-6xl md:text-7xl group-hover:scale-110 group-hover:rotate-3 group-hover:bg-indigo-50 group-hover:shadow-xl transition-all border-4 border-slate-100 hover:border-indigo-200">
                          {t.icon}
                       </div>
                       <span className="font-black uppercase tracking-widest text-xs text-slate-400 group-hover:text-indigo-600">{t.label}</span>
@@ -455,7 +455,7 @@ export default function App() {
                     
                     <div className="space-y-4">
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Tom de Pele</p>
-                      <div className="flex gap-3">
+                      <div className="flex flex-wrap gap-3">
                         {SKIN_COLORS.map(c => (
                           <button key={c} onClick={() => setAvatar({...avatar, skin: c})} className={`w-10 h-10 rounded-full border-4 ${avatar.skin === c ? 'border-indigo-600' : 'border-white'}`} style={{backgroundColor: c}} />
                         ))}
@@ -471,7 +471,7 @@ export default function App() {
                           </button>
                         ))}
                       </div>
-                      <div className="flex gap-3 mt-2">
+                      <div className="flex flex-wrap gap-3 mt-2">
                         {HAIR_COLORS.map(c => (
                           <button key={c} onClick={() => setAvatar({...avatar, hairColor: c})} className={`w-8 h-8 rounded-full border-4 ${avatar.hairColor === c ? 'border-indigo-600' : 'border-white'}`} style={{backgroundColor: c}} />
                         ))}
@@ -480,7 +480,7 @@ export default function App() {
 
                     <div className="space-y-4">
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Cor da Roupa</p>
-                      <div className="flex gap-3">
+                      <div className="flex flex-wrap gap-3">
                         {CLOTHING_COLORS.map(c => (
                           <button key={c} onClick={() => setAvatar({...avatar, clothingColor: c})} className={`w-10 h-10 rounded-full border-4 ${avatar.clothingColor === c ? 'border-indigo-600' : 'border-white'}`} style={{backgroundColor: c}} />
                         ))}
@@ -595,7 +595,7 @@ export default function App() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="bg-white border-4 border-slate-50 rounded-[50px] p-12 shadow-2xl relative"
                      >
-                       <div className="grid md:grid-cols-2 gap-16 items-center">
+                       <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
                           <div className="space-y-8">
                              <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center text-7xl shadow-inner mb-6">
                                {SITUATIONS[currentSituationIdx].icon}
@@ -865,7 +865,7 @@ export default function App() {
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
-            className="fixed right-0 top-0 bottom-0 w-[400px] bg-[#14151a] text-slate-100 shadow-2xl z-[150] flex flex-col p-8 overflow-y-auto"
+            className="fixed right-0 top-0 bottom-0 w-full md:w-[400px] bg-[#14151a] text-slate-100 shadow-2xl z-[150] flex flex-col p-8 overflow-y-auto"
           >
              <div className="flex items-center justify-between mb-10 pb-6 border-b border-slate-800">
                 <div className="flex items-center gap-3">
