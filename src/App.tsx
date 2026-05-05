@@ -444,14 +444,14 @@ export default function App() {
                 </div>
               </motion.div>
             ) : isCustomizing ? (
-              <motion.div key="customize" className="max-w-4xl mx-auto py-4 md:py-8">
-                <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-                  <div className="bg-slate-50 p-8 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-100 shadow-inner w-full flex justify-center">
+              <motion.div key="customize" className="w-full max-w-4xl mx-auto py-4 md:py-8">
+                <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center w-full">
+                  <div className="bg-slate-50 p-4 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-100 shadow-inner w-full md:w-1/2 flex justify-center">
                     <CustomAvatar config={avatar} size="lg" />
                   </div>
                   
-                  <div className="flex-1 space-y-8">
-                    <h3 className="text-3xl font-black text-slate-800">Monte seu Herói</h3>
+                  <div className="flex-1 space-y-6 md:space-y-8 w-full">
+                    <h3 className="text-3xl font-black text-slate-800 text-center md:text-left">Monte seu Herói</h3>
                     
                     <div className="space-y-4">
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Tom de Pele</p>
@@ -509,7 +509,7 @@ export default function App() {
                     <div className="space-y-6 md:space-y-8">
                       <div className="relative group w-full flex justify-center">
                         <div className="absolute -inset-4 bg-indigo-500/10 rounded-[64px] blur-2xl group-hover:bg-indigo-500/20 transition-all" />
-                        <div className="relative bg-white p-8 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-50 shadow-xl w-full flex justify-center">
+                        <div className="relative bg-white p-4 md:p-12 rounded-[40px] md:rounded-[64px] border-4 border-slate-50 shadow-xl w-full flex justify-center">
                           <CustomAvatar 
                             config={avatar} 
                             size="lg" 
@@ -581,7 +581,7 @@ export default function App() {
 
 
                 {activeTab === 'situacoes' && (
-                  <div className="max-w-4xl mx-auto flex flex-col gap-8">
+                  <div className="w-full max-w-4xl mx-auto flex flex-col gap-8">
                      <div className="flex items-center gap-4">
                         <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
                            <motion.div animate={{ width: `${((currentSituationIdx + 1) / SITUATIONS.length) * 100}%` }} className="h-full bg-indigo-500" />
@@ -593,7 +593,7 @@ export default function App() {
                         key={currentSituationIdx}
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white border-4 border-slate-50 rounded-[50px] p-12 shadow-2xl relative"
+                        className="bg-white border-4 border-slate-50 rounded-[40px] md:rounded-[50px] p-6 md:p-12 shadow-2xl relative w-full"
                      >
                        <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
                           <div className="space-y-8">
@@ -692,7 +692,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'confianca' && (
-                  <div className="max-w-4xl mx-auto space-y-12">
+                  <div className="w-full max-w-4xl mx-auto space-y-8 md:space-y-12">
                     <div className="text-center space-y-4">
                        <h3 className="text-4xl font-black text-slate-900">Minha Equipe de Resgate</h3>
                        <p className="text-lg text-slate-400 font-medium">Se você se sentir inseguro, quem são os ajudantes que você pode chamar?</p>
@@ -727,7 +727,7 @@ export default function App() {
                       })}
                     </div>
 
-                    <div className="p-10 bg-indigo-600 rounded-[50px] text-white flex items-center gap-8 shadow-2xl">
+                    <div className="p-6 md:p-10 bg-indigo-600 rounded-[40px] md:rounded-[50px] text-white flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6 md:gap-8 shadow-2xl w-full">
                        <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl shrink-0">🤝</div>
                        <div className="space-y-2">
                          <h4 className="text-2xl font-black italic">Você já tem {selectedHelpers.length} heróis na sua equipe!</h4>
@@ -753,7 +753,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'voz' && (
-                  <div className="max-w-3xl mx-auto space-y-12 h-full flex flex-col justify-center">
+                  <div className="w-full max-w-3xl mx-auto space-y-8 md:space-y-12 h-full flex flex-col justify-center">
                     <div className="text-center space-y-4">
                        <h3 className="text-5xl font-black text-slate-900 leading-none">Minha Voz é Escudo!</h3>
                        <p className="text-slate-400 font-bold text-lg">Clique nas frases para soltar sua voz de super-herói. Quanto mais clicar, mais forte o escudo fica!</p>
@@ -807,7 +807,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'progresso' && (
-                   <div className="max-w-4xl mx-auto space-y-12">
+                   <div className="w-full max-w-4xl mx-auto space-y-8 md:space-y-12">
                      <div className="text-center space-y-4">
                         <h3 className="text-5xl font-black text-slate-900">Minha Coleção</h3>
                         <p className="text-slate-400 font-bold text-lg">Aqui estão os selos de herói que você conquistou na sessão de hoje.</p>
@@ -820,7 +820,7 @@ export default function App() {
                      </div>
 
                      {unlockedStickers.length === STICKERS.length && (
-                       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-12 bg-emerald-500 rounded-[60px] text-white text-center space-y-8 shadow-2xl shadow-emerald-200">
+                       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-6 md:p-12 bg-emerald-500 rounded-[40px] md:rounded-[60px] text-white text-center space-y-6 md:space-y-8 shadow-2xl shadow-emerald-200 w-full">
                           <div className="text-9xl">🏆</div>
                           <h4 className="text-4xl font-black leading-tight">Parabéns, Guardião de Defesa!</h4>
                           <p className="text-xl font-medium opacity-90 max-w-xl mx-auto">Você completou todos os módulos e agora tem os conhecimentos necessários para cuidar bem do seu corpo.</p>
